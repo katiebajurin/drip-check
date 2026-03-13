@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drip Check — by Stagecraft</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2EB;
+    --surface: #FDFCF9;
+    --surface2: #F0EDE4;
+    --ink: #1A1814;
+    --ink2: #4A4740;
+    --ink3: #8A877E;
+    --accent: #C84B2F;
+    --accent2: #E8643E;
+    --accent-light: #FBF0ED;
+    --border: rgba(26,24,20,0.12);
+    --border2: rgba(26,24,20,0.06);
+    --green: #2D6A4F;
+    --green-light: #EAF4EF;
+    --amber: #92400E;
+    --amber-light: #FEF3C7;
+    --red: #9B1C1C;
+    --red-light: #FEE2E2;
+    --radius: 12px;
+    --radius-sm: 6px;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .logo-brand {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink3);
+    letter-spacing: 0.04em;
+  }
+
+  .logo-tool {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--ink);
+  }
+
+  .logo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-bottom: 2px;
+  }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 3rem;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--ink2);
+    max-width: 540px;
+    line-height: 1.7;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-bottom: 2.5rem;
+  }
+
+  .progress-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-pip {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-right: 6px;
+    transition: background 0.4s ease;
+  }
+
+  .step-pip:last-child { margin-right: 0; }
+  .step-pip.active { background: var(--accent); }
+  .step-pip.done { background: var(--ink); }
+
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .card-step {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-title {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* ── FORM ── */
+  .form-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 560px) {
+    .form-grid-2 { grid-template-columns: 1fr; }
+    header { padding: 0 1rem; }
+    .card { padding: 1.25rem; }
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink2);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.01em;
+  }
+
+  label span.hint {
+    font-weight: 400;
+    color: var(--ink3);
+    font-size: 12px;
+    margin-left: 4px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200,75,47,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A877E' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+
+  /* ── CHANNEL CHIPS ── */
+  .chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 13px;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 0.18s;
+    background: var(--surface);
+    user-select: none;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* ── SLIDER ── */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    height: 4px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .slider-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    min-width: 48px;
+    text-align: right;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 11px 24px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink3);
+    border-color: var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--ink); border-color: var(--border2); background: var(--surface2); }
+
+  .btn-run {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    padding: 13px 32px;
+    font-size: 15px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .btn-run:hover { background: var(--ink2); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── LOADING ── */
+  .loading-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1.25rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .loading-sub {
+    font-size: 13px;
+    color: var(--ink3);
+    font-family: var(--mono);
+  }
+
+  .loading-stages {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .stage-item {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--ink3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.4;
+    transition: opacity 0.4s;
+  }
+
+  .stage-item.lit { opacity: 1; color: var(--ink2); }
+  .stage-item.done { color: var(--green); opacity: 1; }
+
+  .stage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ── RESULTS ── */
+  .results-hero {
+    background: var(--ink);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .results-hero::after {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(200,75,47,0.15);
+    pointer-events: none;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 1rem;
+  }
+
+  .score-big {
+    font-family: var(--serif);
+    font-size: 5rem;
+    line-height: 1;
+    color: white;
+  }
+
+  .score-label-wrap {
+    padding-bottom: 10px;
+  }
+
+  .score-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .score-grade {
+    font-size: 22px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .score-bar-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    background: var(--accent2);
+    border-radius: 3px;
+    transition: width 1.2s cubic-bezier(0.25, 0, 0, 1);
+  }
+
+  .results-summary {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.65;
+  }
+
+  /* ── SECTIONS ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── FINDING CARDS ── */
+  .findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .finding {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    border-left-width: 3px;
+  }
+
+  .finding.critical { border-left-color: var(--accent); }
+  .finding.warning { border-left-color: #D97706; }
+  .finding.good { border-left-color: var(--green); }
+
+  .finding-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .finding-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  .finding.critical .finding-badge { background: #FBF0ED; color: var(--accent); }
+  .finding.warning .finding-badge { background: var(--amber-light); color: var(--amber); }
+  .finding.good .finding-badge { background: var(--green-light); color: var(--green); }
+
+  .finding-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .finding-body {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+
+  /* ── QUICK WIN ── */
+  .quick-win {
+    background: var(--accent-light);
+    border: 1px solid rgba(200,75,47,0.2);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .quick-win-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+  }
+
+  .quick-win-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .quick-win-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+
+  .quick-win-body {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+
+  /* ── ROADMAP ── */
+  .roadmap-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .roadmap-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .roadmap-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+    min-width: 22px;
+    padding-top: 1px;
+  }
+
+  .roadmap-content {}
+
+  .roadmap-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .roadmap-desc {
+    font-size: 12px;
+    color: var(--ink3);
+    line-height: 1.55;
+  }
+
+  /* ── FOOTER ACTIONS ── */
+  .result-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-outline {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: var(--sans);
+  }
+
+  .btn-outline:hover { border-color: var(--ink3); color: var(--ink); }
+
+  /* ── UTILITIES ── */
+  .hidden { display: none !important; }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESULT PROSE ── */
+  .result-prose {
+    font-size: 14px;
+    color: var(--ink2);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .result-section {
+    margin-bottom: 2rem;
+  }
+
+  /* ── SPLIT QUICK WINS ── */
+  .quick-wins-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 580px) {
+    .quick-wins-grid { grid-template-columns: 1fr; }
+  }
+
+  .qw-audit {
+    background: var(--accent-light);
+    border-color: rgba(200,75,47,0.2);
+  }
+
+  .qw-test {
+    background: #EEF3FB;
+    border: 1px solid rgba(24,95,165,0.2);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .qw-type {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 3px;
+  }
+
+  .qwi-audit { background: var(--accent); }
+  .qwi-test { background: #185FA5; }
+
+  .qw-add-btn {
+    margin-top: 1rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink3);
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.18s;
+  }
+
+  .qw-add-btn:hover { color: var(--ink); border-color: var(--ink3); background: rgba(0,0,0,0.03); }
+  .qw-add-btn.added { color: var(--green); border-color: var(--green); border-style: solid; }
+
+  /* ── ROADMAP LOG ── */
+  .log-empty {
+    font-size: 13px;
+    color: var(--ink3);
+    font-style: italic;
+    padding: 1rem 0;
+  }
+
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .log-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .log-item-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .log-item-badge.fix { background: var(--accent-light); color: var(--accent); }
+  .log-item-badge.test { background: #EEF3FB; color: #185FA5; }
+  .log-item-badge.roadmap { background: var(--surface2); color: var(--ink3); }
+
+  .log-item-text {
+    font-size: 13px;
+    color: var(--ink2);
+    flex: 1;
+    line-height: 1.5;
+  }
+
+  .log-item-remove {
+    font-size: 16px;
+    color: var(--ink3);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    flex-shrink: 0;
+  }
+
+  .log-item-remove:hover { opacity: 1; }
+
+  .log-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-brand">Stagecraft</span>
+    <div class="logo-dot"></div>
+    <span class="logo-tool">Drip Check</span>
+  </div>
+  <span class="header-tag">Funnel Audit Tool</span>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-eyebrow">Free B2B lifecycle audit</div>
+    <h1>Is your funnel <em>leaking?</em></h1>
+    <p>Paste in your lifecycle setup and get an AI-powered audit scored against best practices — with a prioritized fix list and a quick win you can run this week.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="step1" class="fade-in">
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="step-pip active" id="pip1"></div>
+        <div class="step-pip" id="pip2"></div>
+        <div class="step-pip" id="pip3"></div>
+      </div>
+      <div class="progress-label">Step 1 of 3 — Company & Funnel Basics</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">01 / Basics</div>
+        <div class="card-title">Tell us about your company</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-grid form-grid-2">
+          <div>
+            <label>Company name <span class="hint">(optional)</span></label>
+            <input type="text" id="company" placeholder="Acme Inc.">
+          </div>
+          <div>
+            <label>Industry</label>
+            <select id="industry">
+              <option value="">Select...</option>
+              <option>B2B SaaS</option>
+              <option>Fintech</option>
+              <option>E-commerce / Retail</option>
+              <option>Healthcare / MedTech</option>
+              <option>Marketing / Agency</option>
+              <option>Professional Services</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div>
+            <label>Primary customer segment</label>
+            <select id="segment">
+              <option value="">Select...</option>
+              <option>SMB (1–100 employees)</option>
+              <option>Mid-market (100–1000)</option>
+              <option>Enterprise (1000+)</option>
+              <option>Mixed / all segments</option>
+            </select>
+          </div>
+          <div>
+            <label>Average sales cycle</label>
+            <select id="salesCycle">
+              <option value="">Select...</option>
+              <option>Under 2 weeks</option>
+              <option>2–4 weeks</option>
+              <option>1–3 months</option>
+              <option>3–6 months</option>
+              <option>6+ months</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Approximate lead database size</label>
+          <div class="slider-row">
+            <input type="range" id="dbSize" min="0" max="6" value="2" step="1">
+            <span class="slider-val" id="dbSizeVal">50K–100K</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <span></span>
+        <button class="btn btn-primary" onclick="goToStep(2)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step2" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="step-pip done"></div>
+        <div class="step-pip active"></div>
+        <div class="step-pip"></div>
+      </div>
+      <div class="progress-label">Step 2 of 3 — Channels & Programs</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">02 / Channels</div>
+        <div class="card-title">What's in your stack right now?</div>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>Active channels <span class="hint">(select all that apply)</span></label>
+          <div class="chips-wrap" id="channelChips">
+            <div class="chip" data-val="email">Email nurture</div>
+            <div class="chip" data-val="chat">Chat / conversational</div>
+            <div class="chip" data-val="paid">Paid social</div>
+            <div class="chip" data-val="content">Content syndication</div>
+            <div class="chip" data-val="webinar">Webinars / events</div>
+            <div class="chip" data-val="sdr">SDR outbound</div>
+            <div class="chip" data-val="referral">Referral program</div>
+            <div class="chip" data-val="abm">ABM</div>
+            <div class="chip" data-val="seo">SEO / organic</div>
+            <div class="chip" data-val="inproduct">In-product</div>
+          </div>
+        </div>
+
+        <div>
+          <label>Marketing automation platform</label>
+          <select id="map">
+            <option value="">Select...</option>
+            <option>Marketo</option>
+            <option>HubSpot</option>
+            <option>Pardot / Marketing Cloud</option>
+            <option>Klaviyo</option>
+            <option>ActiveCampaign</option>
+            <option>Customer.io</option>
+            <option>Other / none</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Do you have lead scoring?</label>
+          <select id="leadScoring">
+            <option value="">Select...</option>
+            <option>Yes — actively used and maintained</option>
+            <option>Yes — but it's outdated / not really used</option>
+            <option>Partially — basic threshold only</option>
+            <option>No lead scoring</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Current MQL-to-opportunity conversion rate <span class="hint">(estimate)</span></label>
+          <div class="slider-row">
+            <input type="range" id="mqlConv" min="0" max="30" value="8" step="1">
+            <span class="slider-val" id="mqlConvVal">8%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="step3" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="step-pip done"></div>
+        <div class="step-pip done"></div>
+        <div class="step-pip active"></div>
+      </div>
+      <div class="progress-label">Step 3 of 3 — Friction & Goals</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">03 / Pain Points</div>
+        <div class="card-title">Where's the friction?</div>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>Biggest funnel pain point right now</label>
+          <select id="painPoint">
+            <option value="">Select...</option>
+            <option>Too many leads going cold after capture</option>
+            <option>Low MQL volume despite ad spend</option>
+            <option>MQLs not converting to sales opportunities</option>
+            <option>High unsubscribe / disengagement rates</option>
+            <option>Poor visibility into funnel performance</option>
+            <option>Inconsistent lead handoff to sales</option>
+            <option>Lack of personalization at scale</option>
+            <option>International / multi-market complexity</option>
+          </select>
+        </div>
+
+        <div>
+          <label>What does success look like in 90 days?</label>
+          <select id="goal">
+            <option value="">Select...</option>
+            <option>Increase MQL volume</option>
+            <option>Improve MQL-to-opp conversion</option>
+            <option>Reduce CAC</option>
+            <option>Improve lead quality scores</option>
+            <option>Launch a new channel</option>
+            <option>Better attribution / reporting</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Anything else we should know? <span class="hint">(optional)</span></label>
+          <textarea id="extraContext" placeholder="e.g. We just migrated to a new CRM, our nurture sequences haven't been updated in 2 years, we're expanding into EMEA..."></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-run" id="runBtn" onclick="runAudit()">Run my audit →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingState" class="hidden">
+    <div class="loading-card fade-in">
+      <div class="loading-spinner"></div>
+      <div class="loading-title">Auditing your funnel…</div>
+      <div class="loading-sub">This usually takes 15–30 seconds</div>
+      <div class="loading-stages">
+        <div class="stage-item" id="s1"><div class="stage-dot"></div>Reading your funnel inputs</div>
+        <div class="stage-item" id="s2"><div class="stage-dot"></div>Benchmarking against B2B best practices</div>
+        <div class="stage-item" id="s3"><div class="stage-dot"></div>Scoring each lifecycle stage</div>
+        <div class="stage-item" id="s4"><div class="stage-dot"></div>Identifying quick wins</div>
+        <div class="stage-item" id="s5"><div class="stage-dot"></div>Writing your prioritized roadmap</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultsState" class="hidden fade-in">
+    <!-- Score hero -->
+    <div class="results-hero">
+      <div class="score-row">
+        <div class="score-big" id="scoreNum">--</div>
+        <div class="score-label-wrap">
+          <div class="score-label">Funnel health score</div>
+          <div class="score-grade" id="scoreGrade">--</div>
+        </div>
+      </div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-fill" id="scoreBar" style="width: 0%"></div>
+      </div>
+      <div class="results-summary" id="resultSummary"></div>
+    </div>
+
+    <!-- Findings -->
+    <div class="result-section">
+      <div class="section-label">Key findings</div>
+      <div class="findings-list" id="findingsList"></div>
+    </div>
+
+    <!-- Quick Wins: two cards -->
+    <div class="result-section">
+      <div class="section-label">This week's moves</div>
+      <div class="quick-wins-grid">
+        <!-- Audit Fix -->
+        <div class="quick-win qw-audit">
+          <div class="quick-win-header">
+            <div class="quick-win-icon qwi-audit">🔧</div>
+            <div>
+              <div class="qw-type">Audit fix</div>
+              <div class="quick-win-title" id="auditFixTitle"></div>
+            </div>
+          </div>
+          <div class="quick-win-body" id="auditFixBody"></div>
+          <button class="qw-add-btn" onclick="addToLog('fix')">+ Add to roadmap log</button>
+        </div>
+        <!-- Creative Test -->
+        <div class="quick-win qw-test">
+          <div class="quick-win-header">
+            <div class="quick-win-icon qwi-test">🧪</div>
+            <div>
+              <div class="qw-type">Test this week</div>
+              <div class="quick-win-title" id="creativeTestTitle"></div>
+            </div>
+          </div>
+          <div class="quick-win-body" id="creativeTestBody"></div>
+          <button class="qw-add-btn" onclick="addToLog('test')">+ Add to roadmap log</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="result-section">
+      <div class="section-label">Prioritized optimization roadmap</div>
+      <div class="roadmap-list" id="roadmapList"></div>
+      <button class="btn-outline" style="margin-top:10px; font-size:12px;" onclick="addAllToLog()">+ Add all to roadmap log</button>
+    </div>
+
+    <!-- Roadmap Log -->
+    <div class="result-section" id="logSection">
+      <div class="section-label">Your roadmap log <span id="logCount" style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-left:6px;"></span></div>
+      <div class="log-empty" id="logEmpty">Nothing added yet — use the buttons above to build your log.</div>
+      <div class="log-list" id="logList"></div>
+      <div class="log-actions hidden" id="logActions">
+        <button class="btn-outline" onclick="copyLog()">Copy log</button>
+        <button class="btn-outline" onclick="clearLog()" style="color:var(--accent);">Clear log</button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="result-actions">
+      <button class="btn-outline" onclick="startOver()">← Start a new audit</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── DB SIZE LABELS
+const dbLabels = ['Under 5K','5K–25K','25K–100K','100K–500K','500K–1M','1M–3M','3M+'];
+const dbSlider = document.getElementById('dbSize');
+const dbVal = document.getElementById('dbSizeVal');
+dbSlider.addEventListener('input', () => { dbVal.textContent = dbLabels[dbSlider.value]; });
+dbVal.textContent = dbLabels[dbSlider.value];
+
+// ── MQL SLIDER
+const mqlSlider = document.getElementById('mqlConv');
+const mqlVal = document.getElementById('mqlConvVal');
+mqlSlider.addEventListener('input', () => { mqlVal.textContent = mqlSlider.value + '%'; });
+
+// ── CHANNEL CHIPS
+const selectedChannels = new Set();
+document.querySelectorAll('#channelChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const v = chip.dataset.val;
+    if (selectedChannels.has(v)) { selectedChannels.delete(v); chip.classList.remove('selected'); }
+    else { selectedChannels.add(v); chip.classList.add('selected'); }
+  });
+});
+
+// ── STEP NAV
+function goToStep(n) {
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  const el = document.getElementById('step' + n);
+  el.classList.remove('hidden');
+  el.classList.add('fade-in');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── BUILD PROMPT
+function buildPrompt() {
+  const company = document.getElementById('company').value || 'this company';
+  const industry = document.getElementById('industry').value || 'B2B';
+  const segment = document.getElementById('segment').value || 'mixed';
+  const salesCycle = document.getElementById('salesCycle').value || 'unknown';
+  const dbSizeText = dbLabels[document.getElementById('dbSize').value];
+  const channels = Array.from(selectedChannels).join(', ') || 'none specified';
+  const map = document.getElementById('map').value || 'unknown';
+  const leadScoring = document.getElementById('leadScoring').value || 'unknown';
+  const mqlConv = document.getElementById('mqlConv').value + '%';
+  const painPoint = document.getElementById('painPoint').value || 'not specified';
+  const goal = document.getElementById('goal').value || 'not specified';
+  const extra = document.getElementById('extraContext').value || '';
+
+  return `You are Drip Check, an expert B2B lifecycle marketing auditor with 15+ years of experience helping SaaS and fintech companies optimize their lead funnels. You have deep expertise in lifecycle strategy, lead scoring, nurture programs, channel orchestration, and conversion optimization.
+
+Audit the following funnel setup and return a JSON response (ONLY valid JSON, no markdown, no explanation outside the JSON):
+
+COMPANY INPUT:
+- Company: ${company}
+- Industry: ${industry}
+- Segment: ${segment}
+- Sales cycle: ${salesCycle}
+- Lead database size: ${dbSizeText}
+- Active channels: ${channels}
+- Marketing automation: ${map}
+- Lead scoring: ${leadScoring}
+- MQL-to-opportunity rate: ${mqlConv}
+- Biggest pain point: ${painPoint}
+- 90-day goal: ${goal}
+- Additional context: ${extra || 'none'}
+
+INSTRUCTIONS:
+Analyze this funnel holistically. Score it 0–100. Be direct, specific, and opinionated — not generic. Ground your findings in the specific inputs provided.
+
+Return ONLY this JSON structure:
+{
+  "score": <number 0-100>,
+  "grade": "<one of: Critical, Needs Work, On Track, Strong, Elite>",
+  "summary": "<2-3 sentences: direct assessment of their funnel health based on their specific inputs. Be conversational but expert. Start with the most important insight.>",
+  "findings": [
+    {
+      "severity": "<critical|warning|good>",
+      "title": "<short title, max 8 words>",
+      "body": "<2-3 sentences of specific, actionable insight based on their actual inputs>"
+    }
+  ],
+  "auditFix": {
+    "title": "<short action-oriented title, max 8 words>",
+    "body": "<3-4 sentences. A sharp, non-obvious structural fix specific to their funnel setup. Do NOT suggest things like 'add more personalization' or 'review your lead scoring' — assume they've already thought of obvious fixes. Go one level deeper: a specific mechanic, timing change, segmentation approach, or program architecture tweak that a senior lifecycle marketer would suggest. Reference their actual inputs.>"
+  },
+  "creativeTest": {
+    "title": "<short punchy title for the experiment>",
+    "body": "<3-4 sentences. A genuinely creative, non-obvious A/B test or experiment they could run this week. Think lateral: unexpected channel combos, counterintuitive messaging angles, behavioral triggers, or journey design experiments. NOT 'test your subject lines' or 'try a different CTA'. Something that would make a senior marketer go: I wouldn't have thought of that but it makes total sense. Include what to measure and why it will work for their specific situation.>"
+  },
+  "roadmap": [
+    {
+      "title": "<action title>",
+      "desc": "<1-2 sentences: specific action + expected impact>"
+    }
+  ]
+}
+
+Rules:
+- findings: exactly 4 items (mix of critical, warning, and good based on their setup)
+- roadmap: exactly 5 items, ordered by priority/impact
+- Score honestly — most funnels score 35–70
+- Be specific to THEIR inputs, not generic advice
+- Tone: expert senior practitioner — direct, opinionated, no consultant-speak, no obvious advice
+- auditFix and creativeTest must feel like they came from someone who has seen 100 funnels and knows where the hidden leverage is`;
+}
+
+// ── STAGE ANIMATION
+let stageTimer;
+function animateStages() {
+  const stages = ['s1','s2','s3','s4','s5'];
+  let i = 0;
+  stageTimer = setInterval(() => {
+    if (i > 0) document.getElementById(stages[i-1]).classList.replace('lit','done');
+    if (i < stages.length) {
+      document.getElementById(stages[i]).classList.add('lit');
+      i++;
+    } else {
+      clearInterval(stageTimer);
+    }
+  }, 2800);
+}
+
+// ── RUN AUDIT
+async function runAudit() {
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('heroSection').classList.add('hidden');
+  document.getElementById('loadingState').classList.remove('hidden');
+  animateStages();
+
+  const prompt = buildPrompt();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error.message || 'API error');
+
+    const raw = data.content.map(b => b.text || '').join('');
+
+    let result;
+    try {
+      // Try to extract JSON from anywhere in the response
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('No JSON found');
+      result = JSON.parse(jsonMatch[0]);
+    } catch(e) {
+      console.error('Raw response:', raw);
+      throw new Error('Could not parse response');
+    }
+
+    clearInterval(stageTimer);
+    renderResults(result);
+
+  } catch(err) {
+    clearInterval(stageTimer);
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    alert('Something went wrong running the audit. Please try again.');
+    console.error(err);
+  }
+}
+
+// ── ROADMAP LOG STATE
+let logItems = [];
+let currentResult = null;
+
+// ── RENDER RESULTS
+function renderResults(r) {
+  currentResult = r;
+  document.getElementById('loadingState').classList.add('hidden');
+  document.getElementById('resultsState').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Score
+  document.getElementById('scoreNum').textContent = r.score;
+  document.getElementById('scoreGrade').textContent = r.grade;
+  document.getElementById('resultSummary').textContent = r.summary;
+
+  setTimeout(() => {
+    document.getElementById('scoreBar').style.width = r.score + '%';
+  }, 100);
+
+  // Findings
+  const fl = document.getElementById('findingsList');
+  fl.innerHTML = '';
+  r.findings.forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'finding ' + f.severity;
+    el.innerHTML = `
+      <div class="finding-header">
+        <span class="finding-badge">${f.severity === 'critical' ? 'Critical' : f.severity === 'warning' ? 'Needs Work' : 'Strength'}</span>
+        <span class="finding-title">${f.title}</span>
+      </div>
+      <div class="finding-body">${f.body}</div>
+    `;
+    fl.appendChild(el);
+  });
+
+  // Split quick wins
+  document.getElementById('auditFixTitle').textContent = r.auditFix.title;
+  document.getElementById('auditFixBody').textContent = r.auditFix.body;
+  document.getElementById('creativeTestTitle').textContent = r.creativeTest.title;
+  document.getElementById('creativeTestBody').textContent = r.creativeTest.body;
+
+  // Roadmap
+  const rl = document.getElementById('roadmapList');
+  rl.innerHTML = '';
+  r.roadmap.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'roadmap-item';
+    el.innerHTML = `
+      <div class="roadmap-num">0${i+1}</div>
+      <div class="roadmap-content">
+        <div class="roadmap-title">${item.title}</div>
+        <div class="roadmap-desc">${item.desc}</div>
+      </div>
+    `;
+    rl.appendChild(el);
+  });
+
+  // Reset log
+  logItems = [];
+  renderLog();
+}
+
+// ── LOG FUNCTIONS
+function addToLog(type) {
+  if (!currentResult) return;
+  const btn = document.querySelector(type === 'fix' ? '[onclick="addToLog(\'fix\')"]' : '[onclick="addToLog(\'test\')"]');
+  if (btn && btn.classList.contains('added')) return;
+
+  const item = type === 'fix'
+    ? { type: 'fix', label: 'Audit fix', text: `${currentResult.auditFix.title}: ${currentResult.auditFix.body}` }
+    : { type: 'test', label: 'Test', text: `${currentResult.creativeTest.title}: ${currentResult.creativeTest.body}` };
+
+  logItems.push(item);
+  if (btn) { btn.textContent = '✓ Added'; btn.classList.add('added'); }
+  renderLog();
+}
+
+function addAllToLog() {
+  if (!currentResult) return;
+  currentResult.roadmap.forEach(item => {
+    logItems.push({ type: 'roadmap', label: 'Roadmap', text: `${item.title}: ${item.desc}` });
+  });
+  renderLog();
+}
+
+function removeLogItem(i) {
+  logItems.splice(i, 1);
+  renderLog();
+}
+
+function renderLog() {
+  const list = document.getElementById('logList');
+  const empty = document.getElementById('logEmpty');
+  const actions = document.getElementById('logActions');
+  const count = document.getElementById('logCount');
+
+  list.innerHTML = '';
+  if (logItems.length === 0) {
+    empty.classList.remove('hidden');
+    actions.classList.add('hidden');
+    count.textContent = '';
+    return;
+  }
+
+  empty.classList.add('hidden');
+  actions.classList.remove('hidden');
+  count.textContent = `(${logItems.length})`;
+
+  logItems.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'log-item';
+    el.innerHTML = `
+      <span class="log-item-badge ${item.type}">${item.label}</span>
+      <span class="log-item-text">${item.text}</span>
+      <button class="log-item-remove" onclick="removeLogItem(${i})" title="Remove">×</button>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function copyLog() {
+  const text = logItems.map((item, i) => `${i+1}. [${item.label}] ${item.text}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('[onclick="copyLog()"]');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function clearLog() {
+  logItems = [];
+  document.querySelectorAll('.qw-add-btn.added').forEach(b => {
+    b.textContent = '+ Add to roadmap log';
+    b.classList.remove('added');
+  });
+  renderLog();
+}
+
+// ── START OVER
+function startOver() {
+  document.getElementById('resultsState').classList.add('hidden');
+  document.getElementById('heroSection').classList.remove('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
+  selectedChannels.clear();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
