@@ -472,16 +472,20 @@
   .finding-body { font-size: 16px; color: var(--ink2); line-height: 1.7; font-weight: 300; margin-bottom: 0.75rem; }
 
   .finding-metric {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink3);
-    letter-spacing: 0.04em;
-    border-top: 1px solid var(--border2);
-    padding-top: 0.6rem;
-    margin-top: 0.6rem;
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink2);
+    letter-spacing: 0.01em;
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
   }
 
-  .finding-metric::before { content: '→ '; color: var(--accent2); }
+  .finding-metric::before { content: '↗'; color: var(--accent2); flex-shrink: 0; font-size: 13px; }
 
   /* ── QUICK WINS ── */
   .quick-wins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -1019,9 +1023,9 @@ function buildPrompt() {
   const goal = document.getElementById('goal').value || 'not specified';
   const extra = document.getElementById('extraContext').value || '';
 
-  return `You are Drip Check, an expert B2B lifecycle marketing auditor with 15+ years of experience helping SaaS and fintech companies optimize their lead funnels. You have deep expertise in lifecycle strategy, lead scoring, nurture programs, channel orchestration, and conversion optimization.
+  return `You are Omen, an expert B2B lifecycle marketing auditor with 15+ years optimizing SaaS and fintech funnels. You are direct, opinionated, and specific — you never give generic advice.
 
-Audit the following funnel setup and return a JSON response (ONLY valid JSON, no markdown, no explanation outside the JSON):
+Audit this funnel and return ONLY valid JSON. No markdown, no text outside the JSON.
 
 COMPANY INPUT:
 - Company: ${company}
@@ -1037,47 +1041,45 @@ COMPANY INPUT:
 - 90-day goal: ${goal}
 - Additional context: ${extra || 'none'}
 
-INSTRUCTIONS:
-Analyze this funnel holistically. Score it 0–100. Be direct, specific, and opinionated — not generic. Ground your findings in the specific inputs provided.
-
-Return ONLY this JSON structure:
+Return ONLY this JSON:
 {
   "score": <number 0-100>,
   "grade": "<one of: Critical, Needs Work, On Track, Strong, Elite>",
-  "summary": "<2-3 sentences: direct assessment of their funnel health based on their specific inputs. Be conversational but expert. Start with the most important insight.>",
+  "summary": "<2 sentences max. Lead with the single most important insight about their funnel. Be specific to their inputs — name their tools, their numbers, their situation. No throat-clearing.>",
   "findings": [
     {
       "type": "<critical|warning|good>",
-      "title": "<short title, max 8 words>",
-      "body": "<2-3 sentences of specific, actionable insight based on their actual inputs>",
-      "metric": "<one short sentence: the specific metric to track to measure improvement on this finding, e.g. 'Track MQL-to-opp rate by lead source weekly'>"
+      "title": "<6 words max. Specific, not generic — name the actual problem>",
+      "body": "<2 sentences max. What's broken and exactly why it matters for their setup. One concrete consequence. No padding.>",
+      "metric": "<One metric to track. Format: 'Track [specific metric] [how often]'. Under 12 words.>"
     }
   ],
   "auditFix": {
-    "title": "<short action-oriented title, max 8 words>",
-    "body": "<1-2 sentences max. The core insight — what the fix is and why it matters for their specific situation.>",
-    "steps": ["<specific action step 1>", "<specific action step 2>", "<specific action step 3>"]
+    "title": "<6 words max. Action-oriented — starts with a verb>",
+    "body": "<1 sentence. The core insight: what to fix and the single most important reason why.>",
+    "steps": ["<Step 1: specific, starts with a verb, under 20 words>", "<Step 2: specific, starts with a verb, under 20 words>", "<Step 3: specific, starts with a verb, under 20 words>"]
   },
   "creativeTest": {
-    "title": "<short punchy title for the experiment>",
-    "body": "<1-2 sentences max. The core insight — what the experiment is and why it will work for their setup.>",
-    "steps": ["<exactly what to do step 1>", "<exactly what to do step 2>", "<what to measure and how>"]
+    "title": "<6 words max. Punchy — what the experiment actually is>",
+    "body": "<1 sentence. Why this specific experiment works for their specific setup.>",
+    "steps": ["<Step 1: exactly what to do, under 20 words>", "<Step 2: exactly what to do, under 20 words>", "<Step 3: what to measure and the timeframe, under 20 words>"]
   },
   "roadmap": [
     {
-      "title": "<action title>",
-      "description": "<1-2 sentences: specific action + expected impact>"
+      "title": "<6 words max. Starts with a verb>",
+      "description": "<1 sentence. Specific action + why it's the right priority now. Under 25 words.>"
     }
   ]
 }
 
 Rules:
-- findings: exactly 4 items (mix of critical, warning, and good based on their setup)
-- roadmap: exactly 5 items, ordered by priority/impact
-- Score honestly — most funnels score 35–70
-- Be specific to THEIR inputs, not generic advice
-- Tone: expert senior practitioner — direct, opinionated, no consultant-speak, no obvious advice
-- auditFix and creativeTest must feel like they came from someone who has seen 100 funnels and knows where the hidden leverage is`;
+- findings: exactly 4 items — 2 critical or warning, 1 warning or good, 1 good
+- roadmap: exactly 5 items ordered by impact
+- Score honestly: most funnels score 35–70
+- Every sentence must be specific to THEIR inputs — name their tools, numbers, channels
+- Tone: senior practitioner talking to a peer — direct, no consultant-speak, no obvious advice
+- If something is genuinely strong, say so specifically — don't soften it
+- auditFix and creativeTest should make a senior marketer think: "I wouldn't have thought of that but it's obviously right"`;
 }
 
 // ── STAGE ANIMATION
