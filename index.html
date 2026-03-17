@@ -1218,79 +1218,25 @@ function buildPrompt() {
     : `MQL-to-opportunity rate: ${document.getElementById('mqlConv').value}%`;
 
   const focusContext = isRetention
-    ? `Funnel focus: POST-CONVERSION / RETENTION & GROWTH
-- Customer database size: ${dbSizeText}
-- Typical time to value (TTV): ${timeframe}
-- ${conversionMetric}
-- Customer engagement platform: ${map}
-- CRM: ${crm}
-- Customer / health scoring: ${leadScoring}
-- Biggest pain point: ${painPoint}
+    ? `Focus: RETENTION & GROWTH. Audit from sign-up through activation, adoption, expansion, renewal. Do not give acquisition advice.
+- Database: ${dbSizeText} | TTV: ${timeframe} | ${conversionMetric}
+- Platform: ${map} | CRM: ${crm} | Scoring: ${leadScoring}
+- Pain point: ${painPoint}`
+    : `Focus: ACQUISITION. Audit from lead capture through nurture, MQL, and sales handoff. Do not give retention advice.
+- Database: ${dbSizeText} | Sales cycle: ${timeframe} | ${conversionMetric}
+- MAP: ${map} | CRM: ${crm} | Scoring: ${leadScoring}
+- Pain point: ${painPoint}`;
 
-This is a retention and lifecycle audit. Reason about the customer journey from sign-up through activation, adoption, expansion, and renewal. Focus on: onboarding effectiveness, behavioral trigger logic, product usage signals, churn risk detection, and expansion motion. Do NOT give acquisition or lead generation advice.`
-    : `Funnel focus: ACQUISITION / LEAD GENERATION
-- Lead database size: ${dbSizeText}
-- Average sales cycle: ${timeframe}
-- ${conversionMetric}
-- Marketing automation platform: ${map}
-- CRM: ${crm}
-- Lead scoring: ${leadScoring}
-- Biggest pain point: ${painPoint}
+  return `You are Omen, an expert B2B lifecycle marketing auditor. Direct, specific, opinionated — never generic. Return ONLY valid JSON.
 
-This is an acquisition and pipeline audit. Reason about the funnel from lead capture through nurture, MQL qualification, and sales handoff. Focus on: lead quality, scoring logic, nurture effectiveness, channel orchestration, and conversion rates. Do NOT give retention or post-conversion advice.`;
-
-  return `You are Omen, an expert B2B lifecycle marketing auditor with 15+ years optimizing SaaS and fintech funnels. You are direct, opinionated, and specific — you never give generic advice.
-
-Audit this funnel and return ONLY valid JSON. No markdown, no text outside the JSON.
-
-COMPANY:
-- Company: ${company}
-- Industry: ${industry}
-- Segment: ${segment}
-- Sales cycle: ${timeframe}
-- Active channels: ${channels}
-- Additional context: ${extra || 'none'}
-
+COMPANY: ${company} | ${industry} | ${segment} | Channels: ${channels}
+${extra ? `Context: ${extra}` : ''}
 ${focusContext}
 
-Return ONLY this JSON:
-{
-  "score": <number 0-100>,
-  "grade": "<one of: Critical, Needs Work, On Track, Strong, Elite>",
-  "summary": "<2 sentences max. Lead with the single most important insight. Be specific — name their tools, numbers, situation. No throat-clearing.>",
-  "findings": [
-    {
-      "type": "<critical|warning|good>",
-      "title": "<6 words max. Specific — name the actual problem>",
-      "body": "<2 sentences max. What's broken and exactly why it matters for their setup. One concrete consequence.>",
-      "metric": "<One metric to track. Format: 'Track [specific metric] [how often]'. Under 12 words.>"
-    }
-  ],
-  "auditFix": {
-    "title": "<6 words max. Starts with a verb>",
-    "body": "<1 sentence. What to fix and the single most important reason why.>",
-    "steps": ["<Step 1: specific, starts with a verb, under 20 words>", "<Step 2: specific, starts with a verb, under 20 words>", "<Step 3: specific, starts with a verb, under 20 words>"]
-  },
-  "creativeTest": {
-    "title": "<6 words max. What the experiment actually is>",
-    "body": "<1 sentence. Why this experiment works for their specific setup.>",
-    "steps": ["<Step 1: exactly what to do, under 20 words>", "<Step 2: exactly what to do, under 20 words>", "<Step 3: what to measure and timeframe, under 20 words>"]
-  },
-  "roadmap": [
-    {
-      "title": "<6 words max. Starts with a verb>",
-      "description": "<1 sentence. Specific action + why it's the right priority now. Under 25 words.>"
-    }
-  ]
-}
+JSON schema:
+{"score":<0-100>,"grade":"<Critical|Needs Work|On Track|Strong|Elite>","summary":"<2 sentences, specific to their inputs>","findings":[{"type":"<critical|warning|good>","title":"<6 words max>","body":"<2 sentences max>","metric":"<Track X how often, under 12 words>"}],"auditFix":{"title":"<6 words, starts with verb>","body":"<1 sentence>","steps":["<under 20 words>","<under 20 words>","<under 20 words>"]},"creativeTest":{"title":"<6 words>","body":"<1 sentence>","steps":["<under 20 words>","<under 20 words>","<under 20 words>"]},"roadmap":[{"title":"<6 words, starts with verb>","description":"<1 sentence, under 25 words>"}]}
 
-Rules:
-- findings: exactly 4 items — weight toward the funnel focus area
-- roadmap: exactly 5 items ordered by impact
-- Score honestly: most funnels score 35–70
-- Every sentence must reference their actual inputs — name their tools, numbers, channels
-- Tone: senior practitioner talking to a peer — direct, no consultant-speak
-- auditFix and creativeTest should feel non-obvious but immediately logical`;
+Rules: 4 findings, 5 roadmap items, score 35-70 for most funnels, name their actual tools and numbers, no generic advice.`;
 }
 
 // ── STAGE ANIMATION
@@ -1321,19 +1267,10 @@ async function runAudit() {
   const timeout = setTimeout(() => controller.abort(), 55000);
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/audit', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': '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',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }]
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
       signal: controller.signal
     });
 
@@ -1342,7 +1279,7 @@ async function runAudit() {
     if (!response.ok) throw new Error(`API error: ${response.status}`);
 
     const data = await response.json();
-    const raw = data.content?.[0]?.text || '';
+    const raw = data.text || '';
 
     let result;
     try {
