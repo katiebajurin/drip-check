@@ -1044,6 +1044,7 @@
       <div class="log-list" id="logList"></div>
       <div class="log-actions hidden" id="logActions">
         <button class="btn-outline" onclick="copyLog()">Copy log</button>
+        <button class="btn-outline" onclick="exportCSV()">↓ Export to CSV</button>
         <button class="btn-outline" onclick="clearLog()" style="color:var(--accent);">Clear log</button>
       </div>
     </div>
@@ -1316,13 +1317,18 @@ async function runAudit() {
   animateStages();
 
   const prompt = buildPrompt();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
 
   try {
     const response = await fetch('/api/audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
@@ -1331,7 +1337,6 @@ async function runAudit() {
 
     let result;
     try {
-      // Try to extract JSON from anywhere in the response
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON found');
       result = JSON.parse(jsonMatch[0]);
@@ -1344,12 +1349,40 @@ async function runAudit() {
     renderResults(result);
 
   } catch(err) {
+    clearTimeout(timeout);
     clearInterval(stageTimer);
     document.getElementById('loadingState').classList.add('hidden');
     document.getElementById('step3').classList.remove('hidden');
-    alert('Something went wrong running the audit. Please try again.');
+    document.getElementById('runBtn').disabled = false;
+
+    const isTimeout = err.name === 'AbortError';
+    showError(isTimeout
+      ? 'The audit timed out — the server took too long to respond. Please try again.'
+      : 'Something went wrong running the audit. Please try again.'
+    );
     console.error(err);
   }
+}
+
+function showError(msg) {
+  const existing = document.getElementById('auditError');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'auditError';
+  el.style.cssText = `
+    background: rgba(122,32,32,0.08);
+    border: 1px solid rgba(122,32,32,0.25);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: var(--body);
+    font-size: 14px;
+    color: var(--accent2);
+    margin-top: 1rem;
+    line-height: 1.5;
+  `;
+  el.textContent = msg;
+  document.querySelector('#step3 .btn-row').before(el);
+  setTimeout(() => el.remove(), 8000);
 }
 
 // ── RENDER RESULTS
@@ -1501,6 +1534,32 @@ function copyLog() {
     btn.textContent = '✓ Copied!';
     setTimeout(() => { btn.textContent = orig; }, 2000);
   });
+}
+
+function exportCSV() {
+  const company = document.getElementById('company').value || 'audit';
+  const focus = funnelFocus === 'retention' ? 'retention' : 'acquisition';
+  const date = new Date().toISOString().slice(0, 10);
+  const filename = `omen-roadmap-${company.toLowerCase().replace(/\s+/g, '-')}-${date}.csv`;
+
+  const rows = [
+    ['Priority', 'Type', 'Action', 'Focus'],
+    ...logItems.map((item, i) => [
+      i + 1,
+      item.label,
+      `"${item.text.replace(/"/g, '""')}"`,
+      focus
+    ])
+  ];
+
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function clearLog() {
