@@ -26,8 +26,8 @@ export default async function handler(req) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4000,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -46,6 +46,6 @@ export default async function handler(req) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Internal server error', detail: err.message }), { status: err.message });
+    return new Response(JSON.stringify({ error: 'Internal server error', detail: err.message }), { status: 500 });
   }
 }
