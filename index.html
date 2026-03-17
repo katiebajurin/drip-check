@@ -788,9 +788,9 @@
               <option>Mixed / all segments</option>
             </select>
           </div>
-          <div>
-            <label>Average sales cycle</label>
-            <select id="salesCycle">
+          <div id="timeframeRow">
+            <label id="timeframeLabel">Average sales cycle</label>
+            <select id="timeframeSelect">
               <option value="">Select...</option>
               <option>Under 2 weeks</option>
               <option>2–4 weeks</option>
@@ -894,11 +894,20 @@
         </div>
 
         <div id="mqlRow">
-          <label>Current MQL-to-opportunity rate <span class="hint">(estimate)</span></label>
-          <p class="field-hint-text">An opportunity = a lead your sales team has accepted and opened as an active deal</p>
+          <label id="conversionLabel">Current MQL-to-opportunity rate <span class="hint">(estimate)</span></label>
+          <p class="field-hint-text" id="conversionHint">An opportunity = a lead your sales team has accepted and opened as an active deal</p>
           <div class="slider-row">
             <input type="range" id="mqlConv" min="0" max="30" value="8" step="1">
             <span class="slider-val" id="mqlConvVal">8%</span>
+          </div>
+        </div>
+
+        <div id="activationRow" style="display:none;">
+          <label>Current activation rate <span class="hint">(estimate)</span></label>
+          <p class="field-hint-text">% of new sign-ups who reach their first meaningful value moment in your product</p>
+          <div class="slider-row">
+            <input type="range" id="activationRate" min="0" max="100" value="30" step="1">
+            <span class="slider-val" id="activationRateVal">30%</span>
           </div>
         </div>
 
@@ -1100,6 +1109,21 @@ const platformOptions = {
 function updateBranchedFields() {
   const isRetention = funnelFocus === 'retention';
 
+  // Timeframe field — sales cycle vs. time to value
+  document.getElementById('timeframeLabel').textContent = isRetention
+    ? 'Typical time to value (TTV)'
+    : 'Average sales cycle';
+  const timeframeSel = document.getElementById('timeframeSelect');
+  timeframeSel.innerHTML = '<option value="">Select...</option>';
+  const timeframeOpts = isRetention
+    ? ['Under 1 day', '1–3 days', '1–2 weeks', '2–4 weeks', '1–3 months', '3+ months (needs work)']
+    : ['Under 2 weeks', '2–4 weeks', '1–3 months', '3–6 months', '6+ months'];
+  timeframeOpts.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o; opt.textContent = o;
+    timeframeSel.appendChild(opt);
+  });
+
   // Platform label
   document.getElementById('platformLabel').textContent = isRetention
     ? 'Customer engagement platform'
@@ -1119,8 +1143,9 @@ function updateBranchedFields() {
     ? 'Customer / health scoring'
     : 'Lead scoring';
 
-  // MQL row — only relevant for acquisition
+  // Conversion metric — MQL-to-opp vs. activation rate
   document.getElementById('mqlRow').style.display = isRetention ? 'none' : '';
+  document.getElementById('activationRow').style.display = isRetention ? '' : 'none';
 
   // Pain point options
   const sel = document.getElementById('painPoint');
@@ -1146,6 +1171,11 @@ dbVal.textContent = dbLabels[dbSlider.value];
 const mqlSlider = document.getElementById('mqlConv');
 const mqlVal = document.getElementById('mqlConvVal');
 mqlSlider.addEventListener('input', () => { mqlVal.textContent = mqlSlider.value + '%'; });
+
+// ── ACTIVATION RATE SLIDER
+const actSlider = document.getElementById('activationRate');
+const actVal = document.getElementById('activationRateVal');
+actSlider.addEventListener('input', () => { actVal.textContent = actSlider.value + '%'; });
 
 // ── CHANNEL CHIPS
 const selectedChannels = new Set();
@@ -1173,7 +1203,7 @@ function buildPrompt() {
   const company = document.getElementById('company').value || 'this company';
   const industry = document.getElementById('industry').value || 'B2B';
   const segment = document.getElementById('segment').value || 'mixed';
-  const salesCycle = document.getElementById('salesCycle').value || 'unknown';
+  const timeframe = document.getElementById('timeframeSelect').value || 'unknown';
   const dbSizeText = dbLabels[document.getElementById('dbSize').value];
   const channels = Array.from(selectedChannels).join(', ') || 'none specified';
   const map = document.getElementById('map').value || 'unknown';
@@ -1182,11 +1212,15 @@ function buildPrompt() {
   const painPoint = document.getElementById('painPoint').value || 'not specified';
   const extra = document.getElementById('extraContext').value || '';
   const isRetention = funnelFocus === 'retention';
-  const mqlConv = isRetention ? null : document.getElementById('mqlConv').value + '%';
+  const conversionMetric = isRetention
+    ? `Activation rate: ${document.getElementById('activationRate').value}%`
+    : `MQL-to-opportunity rate: ${document.getElementById('mqlConv').value}%`;
 
   const focusContext = isRetention
     ? `Funnel focus: POST-CONVERSION / RETENTION & GROWTH
 - Customer database size: ${dbSizeText}
+- Typical time to value (TTV): ${timeframe}
+- ${conversionMetric}
 - Customer engagement platform: ${map}
 - CRM: ${crm}
 - Customer / health scoring: ${leadScoring}
@@ -1195,10 +1229,11 @@ function buildPrompt() {
 This is a retention and lifecycle audit. Reason about the customer journey from sign-up through activation, adoption, expansion, and renewal. Focus on: onboarding effectiveness, behavioral trigger logic, product usage signals, churn risk detection, and expansion motion. Do NOT give acquisition or lead generation advice.`
     : `Funnel focus: ACQUISITION / LEAD GENERATION
 - Lead database size: ${dbSizeText}
+- Average sales cycle: ${timeframe}
+- ${conversionMetric}
 - Marketing automation platform: ${map}
 - CRM: ${crm}
 - Lead scoring: ${leadScoring}
-- MQL-to-opportunity rate: ${mqlConv}
 - Biggest pain point: ${painPoint}
 
 This is an acquisition and pipeline audit. Reason about the funnel from lead capture through nurture, MQL qualification, and sales handoff. Focus on: lead quality, scoring logic, nurture effectiveness, channel orchestration, and conversion rates. Do NOT give retention or post-conversion advice.`;
