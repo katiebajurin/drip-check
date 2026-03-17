@@ -1,11 +1,20 @@
-export default async function handler(req, res) {
+export const config = { runtime: 'edge' };
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  const { prompt } = req.body;
+  let prompt;
+  try {
+    const body = await req.json();
+    prompt = body.prompt;
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+  }
+
   if (!prompt) {
-    return res.status(400).json({ error: 'Missing prompt' });
+    return new Response(JSON.stringify({ error: 'No prompt provided' }), { status: 400 });
   }
 
   try {
@@ -17,23 +26,26 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
+        model: 'claude-sonnet-4-5',
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    if (!response.ok) {
+      const error = await response.text();
+      return new Response(JSON.stringify({ error: 'Anthropic API error', detail: error }), { status: response.status });
     }
 
-    const text = data.content.map(b => b.text || '').join('');
-    return res.status(200).json({ text });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+
+    return new Response(JSON.stringify({ text }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
 
   } catch (err) {
-    console.error('Audit API error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return new Response(JSON.stringify({ error: 'Internal server error', detail: err.message }), { status: err.message });
   }
 }
