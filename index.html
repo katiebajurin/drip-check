@@ -198,7 +198,61 @@
     background-color: var(--bg); padding-right: 38px; cursor: pointer;
   }
 
-  /* ── CHIPS ── */
+  /* ── FOCUS CARDS ── */
+  .focus-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 2px;
+  }
+
+  .focus-card {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .focus-card:hover { border-color: var(--ink3); }
+
+  .focus-card.selected {
+    border-color: var(--accent);
+    background: rgba(55,30,30,0.06);
+  }
+
+  .focus-card-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .focus-card.selected .focus-card-title { color: var(--accent); }
+
+  .focus-card-desc {
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--ink3);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 480px) { .focus-cards { grid-template-columns: 1fr; } }
+
+  /* ── FIELD HINT TEXT ── */
+  .field-hint-text {
+    font-family: var(--body);
+    font-size: 12px;
+    color: var(--ink3);
+    font-weight: 300;
+    margin-bottom: 6px;
+    margin-top: -2px;
+    line-height: 1.5;
+  }
   .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { padding: 6px 15px; border: 1px solid var(--border); border-radius: 100px; font-family: var(--body); font-size: 13px; font-weight: 400; color: var(--ink2); cursor: pointer; transition: all 0.18s; background: transparent; user-select: none; }
   .chip:hover { border-color: var(--accent2); color: var(--accent); }
@@ -674,16 +728,31 @@
         <div class="step-pip" id="pip2"></div>
         <div class="step-pip" id="pip3"></div>
       </div>
-      <div class="progress-label">Step 1 of 3 — Company & Funnel Basics</div>
+      <div class="progress-label">Step 1 of 3 — Focus & Company Basics</div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <div class="card-step">01 / Basics</div>
-        <div class="card-title">Tell us about your company</div>
+        <div class="card-step">01 / Focus</div>
+        <div class="card-title">What are you trying to improve?</div>
       </div>
 
       <div class="form-grid">
+
+        <div>
+          <label>Funnel focus <span class="hint">— shapes all questions and recommendations</span></label>
+          <div class="focus-cards" id="focusCards">
+            <div class="focus-card" data-val="acquisition" onclick="selectFocus(this)">
+              <div class="focus-card-title">Acquisition</div>
+              <div class="focus-card-desc">Lead gen, nurture, MQL pipeline, sales handoff</div>
+            </div>
+            <div class="focus-card" data-val="retention" onclick="selectFocus(this)">
+              <div class="focus-card-title">Retention & growth</div>
+              <div class="focus-card-desc">Onboarding, adoption, churn, expansion, upsell</div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-grid form-grid-2">
           <div>
             <label>Company name <span class="hint">(optional)</span></label>
@@ -693,12 +762,16 @@
             <label>Industry</label>
             <select id="industry">
               <option value="">Select...</option>
-              <option>B2B SaaS</option>
-              <option>Fintech</option>
-              <option>E-commerce / Retail</option>
-              <option>Healthcare / MedTech</option>
-              <option>Marketing / Agency</option>
+              <option>SaaS / Software</option>
               <option>Professional Services</option>
+              <option>Financial Services / Fintech</option>
+              <option>Healthcare / Healthtech</option>
+              <option>Manufacturing</option>
+              <option>Ecommerce / Retail</option>
+              <option>Education / Edtech</option>
+              <option>Real Estate / Proptech</option>
+              <option>Telecommunications</option>
+              <option>Media / Marketing / Agencies</option>
               <option>Other</option>
             </select>
           </div>
@@ -710,8 +783,8 @@
             <select id="segment">
               <option value="">Select...</option>
               <option>SMB (1–100 employees)</option>
-              <option>Mid-market (100–1000)</option>
-              <option>Enterprise (1000+)</option>
+              <option>Mid-market (100–1,000)</option>
+              <option>Enterprise (1,000+)</option>
               <option>Mixed / all segments</option>
             </select>
           </div>
@@ -729,12 +802,13 @@
         </div>
 
         <div>
-          <label>Approximate lead database size</label>
+          <label>Approximate database size <span class="hint">(leads or customers)</span></label>
           <div class="slider-row">
             <input type="range" id="dbSize" min="0" max="6" value="2" step="1">
-            <span class="slider-val" id="dbSizeVal">50K–100K</span>
+            <span class="slider-val" id="dbSizeVal">50K–250K</span>
           </div>
         </div>
+
       </div>
 
       <div class="btn-row">
@@ -752,64 +826,82 @@
         <div class="step-pip active"></div>
         <div class="step-pip"></div>
       </div>
-      <div class="progress-label">Step 2 of 3 — Channels & Programs</div>
+      <div class="progress-label">Step 2 of 3 — Stack & Channels</div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <div class="card-step">02 / Channels</div>
+        <div class="card-step">02 / Stack</div>
         <div class="card-title">What's in your stack right now?</div>
       </div>
 
       <div class="form-grid">
+
         <div>
           <label>Active channels <span class="hint">(select all that apply)</span></label>
           <div class="chips-wrap" id="channelChips">
             <div class="chip" data-val="email">Email nurture</div>
+            <div class="chip" data-val="paid-search">Paid search (SEM)</div>
+            <div class="chip" data-val="paid-social">Paid social (LinkedIn, Meta)</div>
+            <div class="chip" data-val="seo">Organic / SEO</div>
+            <div class="chip" data-val="content">Content marketing</div>
+            <div class="chip" data-val="webinar">Webinars & virtual events</div>
+            <div class="chip" data-val="events">In-person & field events</div>
+            <div class="chip" data-val="partner">Partner / affiliate</div>
+            <div class="chip" data-val="inproduct">Product-led (in-app, trials)</div>
+            <div class="chip" data-val="directmail">Direct mail</div>
             <div class="chip" data-val="chat">Chat / conversational</div>
-            <div class="chip" data-val="paid">Paid social</div>
-            <div class="chip" data-val="content">Content syndication</div>
-            <div class="chip" data-val="webinar">Webinars / events</div>
-            <div class="chip" data-val="sdr">SDR outbound</div>
+            <div class="chip" data-val="sms">SMS / mobile push</div>
+            <div class="chip" data-val="community">Community</div>
+            <div class="chip" data-val="sdr">Outbound SDR</div>
             <div class="chip" data-val="referral">Referral program</div>
-            <div class="chip" data-val="abm">ABM</div>
-            <div class="chip" data-val="seo">SEO / organic</div>
-            <div class="chip" data-val="inproduct">In-product</div>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div>
+            <label id="platformLabel">Marketing automation platform</label>
+            <p class="field-hint-text">Helps us tailor recommendations to your platform's capabilities</p>
+            <select id="map">
+            </select>
+          </div>
+          <div>
+            <label>CRM</label>
+            <p class="field-hint-text">Used to connect marketing signals to pipeline and revenue</p>
+            <select id="crm">
+              <option value="">Select...</option>
+              <option>Salesforce</option>
+              <option>HubSpot CRM</option>
+              <option>Pipedrive</option>
+              <option>Microsoft Dynamics</option>
+              <option>Zoho CRM</option>
+              <option>Other</option>
+              <option>None</option>
+            </select>
           </div>
         </div>
 
         <div>
-          <label>Marketing automation platform</label>
-          <select id="map">
-            <option value="">Select...</option>
-            <option>Marketo</option>
-            <option>HubSpot</option>
-            <option>Pardot / Marketing Cloud</option>
-            <option>Klaviyo</option>
-            <option>ActiveCampaign</option>
-            <option>Customer.io</option>
-            <option>Other / none</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Do you have lead scoring?</label>
+          <label id="scoringLabel">Lead / customer scoring</label>
           <select id="leadScoring">
             <option value="">Select...</option>
-            <option>Yes — actively used and maintained</option>
-            <option>Yes — but it's outdated / not really used</option>
-            <option>Partially — basic threshold only</option>
-            <option>No lead scoring</option>
+            <option>Yes — ML or predictive model</option>
+            <option>Yes — static, rules-based</option>
+            <option>Basic threshold only (single MQL cutoff)</option>
+            <option>No scoring</option>
+            <option>Not sure</option>
           </select>
         </div>
 
-        <div>
-          <label>Current MQL-to-opportunity conversion rate <span class="hint">(estimate)</span></label>
+        <div id="mqlRow">
+          <label>Current MQL-to-opportunity rate <span class="hint">(estimate)</span></label>
+          <p class="field-hint-text">An opportunity = a lead your sales team has accepted and opened as an active deal</p>
           <div class="slider-row">
             <input type="range" id="mqlConv" min="0" max="30" value="8" step="1">
             <span class="slider-val" id="mqlConvVal">8%</span>
           </div>
         </div>
+
       </div>
 
       <div class="btn-row">
@@ -827,7 +919,7 @@
         <div class="step-pip done"></div>
         <div class="step-pip active"></div>
       </div>
-      <div class="progress-label">Step 3 of 3 — Friction & Goals</div>
+      <div class="progress-label">Step 3 of 3 — Pain Points & Context</div>
     </div>
 
     <div class="card">
@@ -837,38 +929,19 @@
       </div>
 
       <div class="form-grid">
-        <div>
-          <label>Biggest funnel pain point right now</label>
-          <select id="painPoint">
-            <option value="">Select...</option>
-            <option>Too many leads going cold after capture</option>
-            <option>Low MQL volume despite ad spend</option>
-            <option>MQLs not converting to sales opportunities</option>
-            <option>High unsubscribe / disengagement rates</option>
-            <option>Poor visibility into funnel performance</option>
-            <option>Inconsistent lead handoff to sales</option>
-            <option>Lack of personalization at scale</option>
-            <option>International / multi-market complexity</option>
-          </select>
-        </div>
 
         <div>
-          <label>What does success look like in 90 days?</label>
-          <select id="goal">
+          <label>Biggest pain point right now</label>
+          <select id="painPoint">
             <option value="">Select...</option>
-            <option>Increase MQL volume</option>
-            <option>Improve MQL-to-opp conversion</option>
-            <option>Reduce CAC</option>
-            <option>Improve lead quality scores</option>
-            <option>Launch a new channel</option>
-            <option>Better attribution / reporting</option>
           </select>
         </div>
 
         <div>
           <label>Anything else we should know? <span class="hint">(optional)</span></label>
-          <textarea id="extraContext" placeholder="e.g. We just migrated to a new CRM, our nurture sequences haven't been updated in 2 years, we're expanding into EMEA..."></textarea>
+          <textarea id="extraContext" placeholder="e.g. We just migrated to a new CRM, our onboarding sequence hasn't been updated in 2 years, we're expanding into EMEA..."></textarea>
         </div>
+
       </div>
 
       <div class="btn-row">
@@ -975,8 +1048,95 @@
 </main>
 
 <script>
+// ── FUNNEL FOCUS
+let funnelFocus = 'acquisition';
+
+const painPoints = {
+  acquisition: [
+    'Lead volume (top of funnel, net new leads)',
+    'Lead-to-MQL conversion rate',
+    'Cost per lead / cost per MQL',
+    'MQL-to-SAL conversion rate',
+    'Pipeline value / pipeline coverage',
+    'Channel engagement rates (open rates, CTR, ad conversion)',
+    'Personalization at scale',
+    'New channel launch',
+    'International / multi-market complexity',
+    'Bandwidth / resourcing'
+  ],
+  retention: [
+    'Activation rate (% reaching first value moment)',
+    'Onboarding completion / time-to-value',
+    'Product adoption / active usage',
+    'Retention / churn rate',
+    'Expansion revenue (upsell / cross-sell)',
+    'Channel engagement rates (open rates, in-app CTR, push)',
+    'Personalization at scale',
+    'New channel launch',
+    'International / multi-market complexity',
+    'Bandwidth / resourcing'
+  ]
+};
+
+function selectFocus(el) {
+  document.querySelectorAll('.focus-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  funnelFocus = el.dataset.val;
+  updateBranchedFields();
+}
+
+const platformOptions = {
+  acquisition: [
+    'Marketo', 'HubSpot', 'Pardot / Marketing Cloud',
+    'Klaviyo', 'ActiveCampaign', 'Customer.io', 'Other', 'None'
+  ],
+  retention: [
+    'Braze', 'Iterable', 'Customer.io', 'Intercom', 'Klaviyo',
+    'Mixpanel', 'Amplitude', 'Pendo', 'Gainsight', 'Totango / ChurnZero',
+    'Other', 'None'
+  ]
+};
+
+function updateBranchedFields() {
+  const isRetention = funnelFocus === 'retention';
+
+  // Platform label
+  document.getElementById('platformLabel').textContent = isRetention
+    ? 'Customer engagement platform'
+    : 'Marketing automation platform';
+
+  // Platform dropdown options — swap based on focus
+  const mapSel = document.getElementById('map');
+  mapSel.innerHTML = '<option value="">Select...</option>';
+  platformOptions[funnelFocus].forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p; opt.textContent = p;
+    mapSel.appendChild(opt);
+  });
+
+  // Scoring label
+  document.getElementById('scoringLabel').textContent = isRetention
+    ? 'Customer / health scoring'
+    : 'Lead scoring';
+
+  // MQL row — only relevant for acquisition
+  document.getElementById('mqlRow').style.display = isRetention ? 'none' : '';
+
+  // Pain point options
+  const sel = document.getElementById('painPoint');
+  sel.innerHTML = '<option value="">Select...</option>';
+  painPoints[funnelFocus].forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p; opt.textContent = p;
+    sel.appendChild(opt);
+  });
+}
+
+// Init on load
+updateBranchedFields();
+
 // ── DB SIZE LABELS
-const dbLabels = ['Under 5K','5K–25K','25K–100K','100K–500K','500K–1M','1M–3M','3M+'];
+const dbLabels = ['Under 10K','10K–50K','50K–250K','250K–1M','1M–10M','10M–100M','100M+'];
 const dbSlider = document.getElementById('dbSize');
 const dbVal = document.getElementById('dbSizeVal');
 dbSlider.addEventListener('input', () => { dbVal.textContent = dbLabels[dbSlider.value]; });
@@ -1017,52 +1177,68 @@ function buildPrompt() {
   const dbSizeText = dbLabels[document.getElementById('dbSize').value];
   const channels = Array.from(selectedChannels).join(', ') || 'none specified';
   const map = document.getElementById('map').value || 'unknown';
+  const crm = document.getElementById('crm').value || 'unknown';
   const leadScoring = document.getElementById('leadScoring').value || 'unknown';
-  const mqlConv = document.getElementById('mqlConv').value + '%';
   const painPoint = document.getElementById('painPoint').value || 'not specified';
-  const goal = document.getElementById('goal').value || 'not specified';
   const extra = document.getElementById('extraContext').value || '';
+  const isRetention = funnelFocus === 'retention';
+  const mqlConv = isRetention ? null : document.getElementById('mqlConv').value + '%';
+
+  const focusContext = isRetention
+    ? `Funnel focus: POST-CONVERSION / RETENTION & GROWTH
+- Customer database size: ${dbSizeText}
+- Customer engagement platform: ${map}
+- CRM: ${crm}
+- Customer / health scoring: ${leadScoring}
+- Biggest pain point: ${painPoint}
+
+This is a retention and lifecycle audit. Reason about the customer journey from sign-up through activation, adoption, expansion, and renewal. Focus on: onboarding effectiveness, behavioral trigger logic, product usage signals, churn risk detection, and expansion motion. Do NOT give acquisition or lead generation advice.`
+    : `Funnel focus: ACQUISITION / LEAD GENERATION
+- Lead database size: ${dbSizeText}
+- Marketing automation platform: ${map}
+- CRM: ${crm}
+- Lead scoring: ${leadScoring}
+- MQL-to-opportunity rate: ${mqlConv}
+- Biggest pain point: ${painPoint}
+
+This is an acquisition and pipeline audit. Reason about the funnel from lead capture through nurture, MQL qualification, and sales handoff. Focus on: lead quality, scoring logic, nurture effectiveness, channel orchestration, and conversion rates. Do NOT give retention or post-conversion advice.`;
 
   return `You are Omen, an expert B2B lifecycle marketing auditor with 15+ years optimizing SaaS and fintech funnels. You are direct, opinionated, and specific — you never give generic advice.
 
 Audit this funnel and return ONLY valid JSON. No markdown, no text outside the JSON.
 
-COMPANY INPUT:
+COMPANY:
 - Company: ${company}
 - Industry: ${industry}
 - Segment: ${segment}
 - Sales cycle: ${salesCycle}
-- Lead database size: ${dbSizeText}
 - Active channels: ${channels}
-- Marketing automation: ${map}
-- Lead scoring: ${leadScoring}
-- MQL-to-opportunity rate: ${mqlConv}
-- Biggest pain point: ${painPoint}
-- 90-day goal: ${goal}
 - Additional context: ${extra || 'none'}
+
+${focusContext}
 
 Return ONLY this JSON:
 {
   "score": <number 0-100>,
   "grade": "<one of: Critical, Needs Work, On Track, Strong, Elite>",
-  "summary": "<2 sentences max. Lead with the single most important insight about their funnel. Be specific to their inputs — name their tools, their numbers, their situation. No throat-clearing.>",
+  "summary": "<2 sentences max. Lead with the single most important insight. Be specific — name their tools, numbers, situation. No throat-clearing.>",
   "findings": [
     {
       "type": "<critical|warning|good>",
-      "title": "<6 words max. Specific, not generic — name the actual problem>",
-      "body": "<2 sentences max. What's broken and exactly why it matters for their setup. One concrete consequence. No padding.>",
+      "title": "<6 words max. Specific — name the actual problem>",
+      "body": "<2 sentences max. What's broken and exactly why it matters for their setup. One concrete consequence.>",
       "metric": "<One metric to track. Format: 'Track [specific metric] [how often]'. Under 12 words.>"
     }
   ],
   "auditFix": {
-    "title": "<6 words max. Action-oriented — starts with a verb>",
-    "body": "<1 sentence. The core insight: what to fix and the single most important reason why.>",
+    "title": "<6 words max. Starts with a verb>",
+    "body": "<1 sentence. What to fix and the single most important reason why.>",
     "steps": ["<Step 1: specific, starts with a verb, under 20 words>", "<Step 2: specific, starts with a verb, under 20 words>", "<Step 3: specific, starts with a verb, under 20 words>"]
   },
   "creativeTest": {
-    "title": "<6 words max. Punchy — what the experiment actually is>",
-    "body": "<1 sentence. Why this specific experiment works for their specific setup.>",
-    "steps": ["<Step 1: exactly what to do, under 20 words>", "<Step 2: exactly what to do, under 20 words>", "<Step 3: what to measure and the timeframe, under 20 words>"]
+    "title": "<6 words max. What the experiment actually is>",
+    "body": "<1 sentence. Why this experiment works for their specific setup.>",
+    "steps": ["<Step 1: exactly what to do, under 20 words>", "<Step 2: exactly what to do, under 20 words>", "<Step 3: what to measure and timeframe, under 20 words>"]
   },
   "roadmap": [
     {
@@ -1073,13 +1249,12 @@ Return ONLY this JSON:
 }
 
 Rules:
-- findings: exactly 4 items — 2 critical or warning, 1 warning or good, 1 good
+- findings: exactly 4 items — weight toward the funnel focus area
 - roadmap: exactly 5 items ordered by impact
 - Score honestly: most funnels score 35–70
-- Every sentence must be specific to THEIR inputs — name their tools, numbers, channels
-- Tone: senior practitioner talking to a peer — direct, no consultant-speak, no obvious advice
-- If something is genuinely strong, say so specifically — don't soften it
-- auditFix and creativeTest should make a senior marketer think: "I wouldn't have thought of that but it's obviously right"`;
+- Every sentence must reference their actual inputs — name their tools, numbers, channels
+- Tone: senior practitioner talking to a peer — direct, no consultant-speak
+- auditFix and creativeTest should feel non-obvious but immediately logical`;
 }
 
 // ── STAGE ANIMATION
